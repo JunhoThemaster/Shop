@@ -42,5 +42,6 @@ def summarize_reviews(product_id : int ,contents: list[str], chunk_size=1500, ch
     if not product.summary:
         product.summary = final_summary
         product.save()
+        
     # 최종 요약본 전달 
     return final_summary.content.strip()

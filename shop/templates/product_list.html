@@ -1,8 +1,10 @@
+{% load static %}
+<script src="{% static 'js/summary.js' %}"></script>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>상품 목록</title>
+  <title>게임 목록</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -47,20 +49,23 @@
 <body>
 
 <header>
-  <h1>상품 목록</h1>
-  <p>최신 상품을 만나보세요!</p>
+  <h1>게임 목록</h1>
+  <p>최신 게임을 만나보세요!</p>
 </header>
 
 <section class="product-container" aria-label="상품 목록">
   {% for product in products %}
-  <article class="product" tabindex="0">
+  <article class="product" tabindex="0" data-product-id="{{ product.id }}">
     <h2>{{ product.name }}</h2>
     <p>{{ product.category }}</p>
-    <p>{{ product.description }}</p>
-    <button>구매하기</button><span></span><button>리뷰 요약보기</button>
+    <p>가격 : {{ product.price }}원</p>
+
+    <button class="r-sum-btn" data-product-id="{{ product.id }}">리뷰 요약보기</button>
+    <div class="summary-box" data-product-id="{{ product.id }}"></div>
   </article>
   {% endfor %}
 </section>
+
 
 <footer>
   © 2025 나의 쇼핑몰. 모든 권리 보유.

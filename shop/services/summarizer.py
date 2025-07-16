@@ -74,7 +74,7 @@ def summarize_reviews(product_id : int ,contents: list[str], chunk_size=1500, ch
         print(f"줄글로 요약된 서머리:{flattened_txt}")
         save_to_chroma(product,flattened_txt)
             
-    # 최종 요약본 전달 
+ 
         return final_summary.content.strip()
 
 

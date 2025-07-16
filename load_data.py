@@ -12,14 +12,11 @@ from shop.models import Product, Review
 def parse_price(price_str):
     return int(price_str.replace("₩", "").replace(",", "").strip())
 
-data_li = [
-    'data/garry_info.csv', 'data/portal_info.csv',
-    'data/superPower_info.csv',
-    'data/FlatOut 3_ Chaos & Destruction_info.csv']
-review_li = ['preprocessor/fixed_garry_review.csv', 
-             'preprocessor/fixed_portal_reviews.csv',
-             'preprocessor/fixed_superPower_reviews.csv',
-             'preprocessor/fixed_flatOut3_reviews.csv']
+data_dir = r'C:\Users\main\Documents\Shop\data'
+data_li = [os.path.join(data_dir, fname) 
+           for fname in os.listdir(data_dir) if fname.endswith('.csv')]
+review_dir = r'c:\Users\main\Documents\Shop\preprocessor'
+review_li = [os.path.join(review_dir,fname) for fname in os.listdir(review_dir) if fname.endswith('.csv')]
 
 for info_path, review_path in zip(data_li, review_li):
     # 1. Product 저장
@@ -29,7 +26,7 @@ for info_path, review_path in zip(data_li, review_li):
             product,created = Product.objects.get_or_create(
                 name=row["게임제목"],
                 defaults={
-                    "price": parse_price(row["가격"]),
+                     "price": 0 if row["가격"] == "가격 정보 없음" else parse_price(row["가격"]),
                     "developer": row["유통사"],
                     "pc_min_req": row["PC_최소사양"],
                     "description": row["상세설명"],

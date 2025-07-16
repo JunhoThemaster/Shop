@@ -1,0 +1,12 @@
+{% for product in products %}
+<article class="product" tabindex="0" data-product-id="{{ product.id }}">
+  <h2>{{ product.name }}</h2>
+  <p>{{ product.category }}</p>
+  <p>가격 : {{ product.price }}원</p>
+
+  <button class="r-sum-btn" data-product-id="{{ product.id }}">리뷰 요약보기</button>
+  <div class="summary-box" data-product-id="{{ product.id }}"></div>
+</article>
+{% empty %}
+<p>검색 결과가 없습니다.</p>
+{% endfor %}

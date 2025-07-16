@@ -24,4 +24,44 @@ function initReviewSummaryButtons() {
     });
 }
 
-document.addEventListener("DOMContentLoaded", initReviewSummaryButtons);
+
+function liveSearch(search_input,target_selector,searchUrl = "/"){
+    const input = document.querySelector(search_input);
+    const container = document.querySelector(target_selector);
+
+    if (!search_input || !container){
+        console.warn("입력창 또는 결과 영역 사라짐");
+        return;
+    }
+
+    let timeOut = null;
+
+    input.addEventListener("input",function(){
+        const query = input.value.trim();
+
+        if(query.length < 1) return;
+
+        clearTimeout(timeOut);
+        debouncTimeout = setTimeout(() => {
+            fetch(`${searchUrl}?q=${encodeURIComponent(query)}&partial=true`)
+                .then(resp => {
+                    if(!resp.ok) throw new Error("서버오류");
+                    return resp.text();
+                })
+                .then(html => {
+                    container.innerHTML = html;
+                    initReviewSummaryButtons();
+                })
+                .catch(err => {
+                    console.error("검색 실패" ,err);
+                    container.innerHTML = "<p>검색중 오류 발생</p>";
+
+                });
+        },300);
+
+    });
+}
+document.addEventListener("DOMContentLoaded", function () {
+  initReviewSummaryButtons();  // ✅ 기존 리뷰 요약 버튼 이벤트
+  liveSearch("#search-input", "#product-container");  // ✅ 실시간 검색 초기화
+});

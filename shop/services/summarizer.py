@@ -2,6 +2,7 @@
 from langchain.chat_models import ChatOpenAI
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
+from chromadb.config import Settings
 from langchain.prompts import ChatPromptTemplate
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from dotenv import load_dotenv
@@ -37,7 +38,18 @@ def summarize_reviews(product_id : int ,contents: list[str], chunk_size=1500, ch
 
         # 2. LangChain 요약 프롬프트 구성
         prompt = ChatPromptTemplate.from_messages([
-            ("system", "다음은  게임의 설명과 사용자의 리뷰입니다. 내용을 한국어로 간결하지만 게임의 핵심 후기를 가격대와,사양,그래픽 등등, 그리고 유저들이 자주쓰는 비속어 똥겜, 갓겜, 등등의 비속어를 포함하여 짧은 3문장으로 요약부탁드림 만약 전체적으로 평가가 좋다면 갓겜 평가가 안좋다면 똥겜 이유를 같이 붙여서 요약 부탁함."),
+            ("system", 
+                """
+                다음 정보를 필드별로 요약하세요. 각 필드는 반드시 한 문장으로 작성합니다.
+
+                    [가격 요약]: ...
+                    [사양 요약]: ...
+                    [그래픽 요약]: ...
+                    [사용자 반응 요약]: ...
+                    [총평 (갓겜/똥겜 판단 포함)]: 
+                """
+                )
+        ,
             ("human", "{input}")
         ])
         api_key = os.getenv("OPEN_AI_API_KEY")
@@ -55,13 +67,15 @@ def summarize_reviews(product_id : int ,contents: list[str], chunk_size=1500, ch
         product = Product.objects.get(id=product_id)
         # 최종 요약본 product 테이블의 summary 필드에 저장
 
-        product.summary = final_summary
+        product.summary = final_summary.content.strip()
         product.save()
         
-        save_to_chroma(product,final_summary.content.strip())
+        flattened_txt = flatten_summary(final_summary.content.strip())
+        print(f"줄글로 요약된 서머리:{flattened_txt}")
+        save_to_chroma(product,flattened_txt)
             
     # 최종 요약본 전달 
-    return final_summary.content.strip()
+        return final_summary.content.strip()
 
 
 
@@ -86,12 +100,42 @@ def save_to_chroma(product:object ,txt):
             texts=docs,
             metadatas=metadatas
         )
+        db.persist()
+        print("저장된 문서 수:", db._collection.count())
         print(f"저장 완료: product_id={product.id}")
     else: 
         return
     
     
-    
+def flatten_summary(summary_text: str) -> str:
+    """
+    [가격 요약] 같은 블록 구조를 자연어 형태로 풀어서 줄글로 반환 유저들의 비속어와 자연스러운 검색 문장에
+    맞게 비속어와, 전문용어를 섞어도 무방함.
+    """
+    lines = summary_text.split("\n")
+    output = []
+
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        if line.startswith("[") and "]" in line:
+            # ex) [가격 요약]: → "가격 측면에서는 "
+            label = line[1:line.index("]")]
+            content = line[line.index("]")+1:].strip(": ").strip()
+            prefix = {
+                "가격 요약": "가격 측면에서는",
+                "사양 요약": "사양 측면에서는",
+                "그래픽 요약": "그래픽적으로는",
+                "사용자 반응 요약": "사용자 평가는",
+                "총평 (갓겜/똥겜 판단 포함)": "전체적으로는"
+            }.get(label, "")
+            output.append(f"{prefix} {content}")
+        else:
+            output.append(line)
+
+    return " ".join(output)
+
     
     
 def extract_content(summary_string):

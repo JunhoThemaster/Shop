@@ -1,5 +1,4 @@
-{% load static %}
-<script src="{% static 'js/summary.js' %}"></script>
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -47,29 +46,23 @@
   </style>
 </head>
 <body>
-
 <header>
-  <h1>게임 목록</h1>
-  <p>최신 게임을 만나보세요!</p>
+  <h1>게임 finder 입맛에 맞게 야무지게</h1>
+  <p>게임 찾아 드립니다!</p>
+
+  <!-- 🔍 검색창 추가 -->
+  <input type="text" id="search-input" placeholder="예: 오픈월드 갓겜" style="width: 300px; padding: 5px;">
 </header>
 
-<section class="product-container" aria-label="상품 목록">
-  {% for product in products %}
-  <article class="product" tabindex="0" data-product-id="{{ product.id }}">
-    <h2>{{ product.name }}</h2>
-    <p>{{ product.category }}</p>
-    <p>가격 : {{ product.price }}원</p>
-
-    <button class="r-sum-btn" data-product-id="{{ product.id }}">리뷰 요약보기</button>
-    <div class="summary-box" data-product-id="{{ product.id }}"></div>
-  </article>
-  {% endfor %}
-</section>
-
+<!-- ✅ 이 영역만 AJAX로 업데이트 -->
+    <section class="product-container" id="product-container" aria-label="상품 목록">
+    {% include "product/product_list.html" %}
+    </section>
 
 <footer>
   © 2025 나의 쇼핑몰. 모든 권리 보유.
 </footer>
-
+{% load static %}
+<script src="{% static 'js/summary.js' %}"></script>
 </body>
 </html>

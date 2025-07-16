@@ -19,7 +19,7 @@ def summarize_review(req,product_id):
         
         if not reviews:
             return JsonResponse({'summary':'리뷰가 없습니다'})
-        summary = summarizer.summarize_reviews(list(product_id,reviews))
+        summary = summarizer.summarize_reviews(product_id,list(reviews))
         
         return JsonResponse({'summary':summary})
     

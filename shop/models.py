@@ -6,8 +6,9 @@ class Product(models.Model):
     description = models.TextField(null=True, blank=True)
     pc_min_req = models.TextField()
     price = models.IntegerField(null=False)
-    summary = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
+    developer = models.TextField(null=False)
+    summary = models.TextField(null=True)
+    created_at = models.DateTimeField()
     
     def __str__(self):
         return self.name

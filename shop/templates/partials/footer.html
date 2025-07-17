@@ -1,0 +1,12 @@
+{# templates/partials/footer.html #}
+<footer class="sticky-footer bg-white">
+  <div class="container my-auto">
+    <div class="copyright text-center my-auto">
+      <span>
+        Copyright &copy;
+        {% now "Y" %}  <!-- 현재 연도 자동 -->
+        {{ site_name|default:"My Site" }}
+      </span>
+    </div>
+  </div>
+</footer>

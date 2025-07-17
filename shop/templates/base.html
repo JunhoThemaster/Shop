@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Dashboard{% endblock %}</title>
+
+  <!-- SB Admin 2 CSS -->
+  <link href="{% static 'sb-admin-2/vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet">
+  <link href="{% static 'sb-admin-2/css/sb-admin-2.min.css' %}" rel="stylesheet">
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body id="page-top">
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    {% include 'partials/sidebar.html' %}
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+      <div id="content">
+
+        {% include 'partials/navbar.html' %}
+
+        <!-- Main Content -->
+        <div class="container-fluid">
+          {% block content %}{% endblock %}
+        </div>
+
+      </div>
+      {% include 'partials/footer.html' %}
+    </div>
+  </div>
+
+  <!-- Core JS -->
+  <script src="{% static 'sb-admin-2/vendor/jquery/jquery.min.js' %}"></script>
+  <script src="{% static 'sb-admin-2/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'sb-admin-2/js/sb-admin-2.min.js' %}"></script>
+  {% block extra_script %}{% endblock %}
+</body>
+</html>

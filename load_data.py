@@ -17,7 +17,7 @@ data_li = [os.path.join(data_dir, fname)
            for fname in os.listdir(data_dir) if fname.endswith('.csv')]
 review_dir = r'c:\Users\main\Documents\Shop\preprocessor'
 review_li = [os.path.join(review_dir,fname) for fname in os.listdir(review_dir) if fname.endswith('.csv')]
-
+link = 'https://store.steampowered.com/app/{appid}'
 for info_path, review_path in zip(data_li, review_li):
     # 1. Product 저장
     with open(info_path, encoding="utf-8") as f:
@@ -27,6 +27,8 @@ for info_path, review_path in zip(data_li, review_li):
                 name=row["게임제목"],
                 defaults={
                      "price": 0 if row["가격"] == "가격 정보 없음" else parse_price(row["가격"]),
+                     "link" : f"https://store.steampowered.com/app/{row["appid"]}",
+                     "genre" : row['장르'],
                     "developer": row["유통사"],
                     "pc_min_req": row["PC_최소사양"],
                     "description": row["상세설명"],

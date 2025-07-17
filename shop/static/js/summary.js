@@ -57,7 +57,7 @@ function liveSearch(search_input,target_selector,searchUrl = "/"){
                     container.innerHTML = "<p>검색중 오류 발생</p>";
 
                 });
-        },300);
+        },20);
 
     });
 }

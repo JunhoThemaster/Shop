@@ -33,7 +33,7 @@ def search_by_vector(query,k=10):
     
     results = db.similarity_search_with_score(query, k=k)
 
-    ranked_ids = []  # (id, score) 튜플
+    ranked_ids = []
     for doc, score in results:
         product_id = doc.metadata.get("product_id")
         if product_id:
@@ -42,14 +42,12 @@ def search_by_vector(query,k=10):
     if not ranked_ids:
         return []
 
-    # 유사도 점수 높은 순으로 정렬
-    ranked_ids.sort(key=lambda x: x[1], reverse=True)
-    id_only = [pid for pid, _ in ranked_ids]
+    # 🔽 유사도 높은 순으로 정렬 후 상위 3개만 추출
+    ranked_ids.sort(key=lambda x: x[1], reverse=False)
+    top_ranked_ids = ranked_ids[:3]  # ✅ 상위 3개
 
-    # product_id 기준으로 상품 가져오기
+    id_only = [pid for pid, _ in top_ranked_ids]
     products = list(Product.objects.filter(id__in=id_only))
-
-    # 쿼셋은 순서 보장 X -> 정렬 필요
     ordered_products = sorted(products, key=lambda p: id_only.index(p.id))
 
     return ordered_products

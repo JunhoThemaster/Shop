@@ -17,9 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from . import views
+from shop.admservice.admin_view import admin_home
 
 urlpatterns = [
     path('',views.home,name="home"),
+    path('admins',admin_home,name="admin_home"),
     path("api/product/<int:product_id>/summary/", views.summarize_review, name="review_summary_api")
     # path('product/<int:product_id>/',views.product_detail,name="product_detail")
 ]

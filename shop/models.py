@@ -3,6 +3,8 @@ from django.db import models
 
 class Product(models.Model):
     name = models.CharField(max_length=100)
+    link = models.TextField(null=False)
+    genre = models.TextField()
     description = models.TextField(null=True, blank=True)
     pc_min_req = models.TextField()
     price = models.IntegerField(null=False)
@@ -24,7 +26,7 @@ class Review(models.Model):
     
     
 class ReviewAnalysis(models.Model):
-    review = models.OneToOneField(Review, on_delete=models.CASCADE, related_name='analysis')
+    review = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='analysis')
     is_negative = models.BooleanField()
     keywords = models.TextField()
     summary = models.TextField(null=True, blank=True)

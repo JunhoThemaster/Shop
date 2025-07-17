@@ -17,10 +17,7 @@ def summarize_reviews(product_id : int ,contents: list[str], chunk_size=1500, ch
     
     if product.summary:
         summary = product.summary
-        match = extract_content(summary)
-        
-        if match != None:
-            return match
+        return summary;
         
     else:
         """
@@ -40,7 +37,9 @@ def summarize_reviews(product_id : int ,contents: list[str], chunk_size=1500, ch
         prompt = ChatPromptTemplate.from_messages([
             ("system", 
                 """
-                다음 정보를 필드별로 요약하세요. 각 필드는 반드시 한 문장으로 작성합니다.
+                다음 정보를 필드별로 게임장르,리뷰,설명을 활용해 요약하세요. 
+                각 필드는 반드시 한 문장으로 다채로운 표현 써서 게임안의 요소들 특성을 확실하게 드러나도록
+                작성합니다.
 
                     [가격 요약]: ...
                     [사양 요약]: ...
@@ -59,7 +58,7 @@ def summarize_reviews(product_id : int ,contents: list[str], chunk_size=1500, ch
         summaries = []
         for chunk in chunks:
             chain = prompt | llm
-            summary = chain.invoke({"input":f"게임 설명:{product.description}\n 리뷰 : "+chunk})
+            summary = chain.invoke({"input":f"게임 설명:{product.description}\n 게임 장르 : {product.genre} \n 리뷰 : "+chunk})
             summaries.append(summary.content.strip())
             
         final_input = "\n\n".join(summaries)
@@ -87,6 +86,7 @@ def save_to_chroma(product:object ,txt):
         docs = [txt]
         metadatas = [{'product_id':str(product.id),
                       'product_name':str(product.name),
+                      'genre': str(product.genre),
                       'price' :str(product.price),
                       'release_date':product.created_at.strftime("%Y년 %m월 %d일"),
                       'developer' : str(product.developer),
@@ -110,7 +110,7 @@ def save_to_chroma(product:object ,txt):
 def flatten_summary(summary_text: str) -> str:
     """
     [가격 요약] 같은 블록 구조를 자연어 형태로 풀어서 줄글로 반환 유저들의 비속어와 자연스러운 검색 문장에
-    맞게 비속어와, 전문용어를 섞어도 무방함.
+    맞게 비속어와, 전문용어를 섞어도 무방 그리고 게임의 특성이 잘 나타나게 요약부탁함.
     """
     lines = summary_text.split("\n")
     output = []

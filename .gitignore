@@ -2,5 +2,5 @@
 !*/migrations/__init__.py
 
 .env
-
+*.bin
 shopvenv

@@ -12,69 +12,64 @@ import os
 load_dotenv()
 
 
-def summarize_reviews(product_id : int ,contents: list[str], chunk_size=1500, chunk_overlap=100) -> str:
+def summarize_reviews(product_id: int, contents: list[str], chunk_size=1500, chunk_overlap=100) -> str:
     product = Product.objects.get(id=product_id)
     
     if product.summary:
-        summary = product.summary
-        return summary;
-        
-    else:
+        return product.summary
+
+    # 1. 리뷰 내용 전처리 (너무 짧은 건 제외)
+    contents = contents
+
+    # 2. LangChain 준비
+    api_key = os.getenv("OPEN_AI_API_KEY")
+    llm = ChatOpenAI(model="gpt-4.1-nano", temperature=0, openai_api_key=api_key)
+
+    # 3. 전체 텍스트 결합 및 chunk 나누기
+    text = "\n\n".join(contents)
+    splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+    chunks = splitter.split_text(text)
+
+    # 4. chunk별 요약 (간단한 핵심 요약)
+    chunk_prompt = ChatPromptTemplate.from_messages([
+        ("system", "아래는 게임에 대한 유저 리뷰다. 이 리뷰를 통해 알수있는 게임의 주요 특징과 불만/칭찬을 짧게 요약해줘."),
+        ("human", "{input}")
+    ])
+    summaries = []
+    for chunk in chunks:
+        summary = (chunk_prompt | llm).invoke({"input": chunk})
+        summaries.append(summary.content.strip())
+
+    # 5. 최종 요약 프롬프트 (구조화 + 욕설 스타일)
+    final_prompt = ChatPromptTemplate.from_messages([
+        ("system",
         """
-        contents: 리뷰 텍스트 리스트
-        return: LangChain 기반 요약 결과
-        """
-        text = "\n\n".join(contents)
+        다음은 게임 리뷰 요약들이다. 아래 5개 항목으로 리뷰를 요약하되, 각 항목은 3문장 이내로 작성하고
+        거침없고 자극적인 표현(비속어 포함 가능)을 사용하여 게임의 특성과 반응을 생생하게 전달해줘.
+        결과는 아래 양식대로:
 
-        # 1. Chunk 나누기
-        splitter = RecursiveCharacterTextSplitter(
-            chunk_size=chunk_size,
-            chunk_overlap=chunk_overlap,
-        )
-        chunks = splitter.split_text(text)
+        [가격 요약]:  
+        [사양 요약]:  
+        [그래픽 요약]:  
+        [사용자 반응 요약]:  
+        [총평 (갓겜/똥겜 판단 포함)]:
+        """),
+        ("human", "{input}")
+    ])
 
-        # 2. LangChain 요약 프롬프트 구성
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", 
-                """
-                다음 정보를 필드별로 게임장르,리뷰,설명을 활용해 요약하세요. 
-                각 필드는 반드시 한 문장으로 다채로운 표현 써서 게임안의 요소들 특성을 확실하게 드러나도록
-                작성합니다.
+    final_input = f"게임 설명: {product.description}\n장르: {product.genre}\n\n리뷰 요약들:\n" + "\n\n".join(summaries)
+    final_summary = (final_prompt | llm).invoke({"input": final_input})
 
-                    [가격 요약]: ...
-                    [사양 요약]: ...
-                    [그래픽 요약]: ...
-                    [사용자 반응 요약]: ...
-                    [총평 (갓겜/똥겜 판단 포함)]: 
-                """
-                )
-        ,
-            ("human", "{input}")
-        ])
-        api_key = os.getenv("OPEN_AI_API_KEY")
-        # 3. 요약 실행
-        llm = ChatOpenAI(model="gpt-4.1-nano", temperature=0,openai_api_key=api_key)
+    # 6. 저장
+    result = final_summary.content.strip()
+    product.summary = result
+    product.save()
 
-        summaries = []
-        for chunk in chunks:
-            chain = prompt | llm
-            summary = chain.invoke({"input":f"게임 설명:{product.description}\n 게임 장르 : {product.genre} \n 리뷰 : "+chunk})
-            summaries.append(summary.content.strip())
-            
-        final_input = "\n\n".join(summaries)
-        final_summary = (prompt | llm).invoke({'input' : final_input})
-        product = Product.objects.get(id=product_id)
-        # 최종 요약본 product 테이블의 summary 필드에 저장
+    flattened_txt = flatten_summary(result)
+    print(f"줄글 요약: {flattened_txt}")
+    save_to_chroma(product, flattened_txt)
 
-        product.summary = final_summary.content.strip()
-        product.save()
-        
-        flattened_txt = flatten_summary(final_summary.content.strip())
-        print(f"줄글로 요약된 서머리:{flattened_txt}")
-        save_to_chroma(product,flattened_txt)
-            
- 
-        return final_summary.content.strip()
+    return result
 
 
 

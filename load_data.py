@@ -11,8 +11,12 @@ from shop.models import Product, Review
 import re, emoji
 from konlpy.tag import Okt
 from django.db import transaction
+
+
 STOPWORDS = {"이", "그", "저", "것", "수", "좀"}
 okt = Okt()
+
+
 def preprocess(text: str) -> list[str]:
     # ① 기본 정규화
     text = emoji.replace_emoji(text, "")
@@ -42,10 +46,12 @@ def parse_price(price_str):
     return int(price_str.replace("₩", "").replace(",", "").strip())
 
 data_dir = r'C:\Users\main\Documents\Shop\data'
-data_li = [os.path.join(data_dir, fname) 
-           for fname in os.listdir(data_dir) if fname.endswith('.csv')]
+data_dir1 = r'C:\Shop\data'
+data_li = [os.path.join(data_dir1, fname) 
+           for fname in os.listdir(data_dir1) if fname.endswith('.csv')]
 review_dir = r'c:\Users\main\Documents\Shop\preprocessor'
-review_li = [os.path.join(review_dir,fname) for fname in os.listdir(review_dir) if fname.endswith('.csv')]
+review_dir1 = r'C:\Shop\preprocessor'
+review_li = [os.path.join(review_dir1,fname) for fname in os.listdir(review_dir1) if fname.endswith('.csv')]
 link = 'https://store.steampowered.com/app/{appid}'
 for info_path, review_path in zip(data_li, review_li):
     # 1. Product 저장

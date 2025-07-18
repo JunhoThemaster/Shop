@@ -32,7 +32,8 @@ function get_sentiment(){
             .then(data => {
                 showLoadingSpinner(false);
                 if(data.sentiment_ratio){
-                    renderSentimentPieChart(data.sentiment_ratio);
+                    renderSentimentPieChart(data.sentiment_ratio,pr_id);
+                    
                 }else{
                     alert(data.msg);
                     init_sentiment(pr_id);
@@ -53,7 +54,7 @@ function init_sentiment(pr_id){
             showLoadingSpinner(false);
             if(data.sentiment_ratio){
                 console.log(data.sentiment_ratio);
-                renderSentimentPieChart(data.sentiment_ratio);
+                renderSentimentPieChart(data.sentiment_ratio,pr_id);
             }
             
         })
@@ -66,7 +67,8 @@ function init_sentiment(pr_id){
 
 let sentimentChart = null;
 
-function renderSentimentPieChart(ratioData) {
+function renderSentimentPieChart(ratioData,pr_id) {
+  FetchReviewTrend(pr_id); 
   const ctx = document.getElementById("myPieChart").getContext("2d");
 
   const labels = Object.keys(ratioData);
@@ -110,7 +112,78 @@ function renderSentimentPieChart(ratioData) {
 }
 
 
-document.addEventListener("DOMContentLoaded", function () {
+
+
+function FetchReviewTrend(pr_id){
+    showLoadingSpinner(true)
+    fetch(`api/admins/${pr_id}/get_trend`)
+        .then(resp =>  resp.json())
+        .then(data => { if (data.trend){renderReviewTrend(data.trend); showLoadingSpinner(false)}} )
+        .catch(err => {
+            console.log("실패" ,err)
+        })
+}
+let trendChart = null;
+function renderReviewTrend(trendData){
+    const ctx = document.getElementById("reviewTrendChart").getContext("2d");
+
+    const labels = Object.keys(trendData);        // 날짜
+    const data = Object.values(trendData);        // 리뷰 수
+
+    if (trendChart) {
+        trendChart.destroy(); // 기존 차트 제거
+    }
+
+    trendChart = new Chart(ctx, {
+        type: "line",
+        data: {
+        labels: labels,
+        datasets: [{
+            label: "리뷰 수",
+            data: data,
+            fill: false,
+            borderColor: "rgba(75, 192, 192, 1)",
+            tension: 0.1
+        }]
+        },
+        options: {
+        responsive: true,
+        plugins: {
+            legend: {
+            display: true
+            },
+            tooltip: {
+            callbacks: {
+                label: function(context) {
+                return `${context.parsed.y}건`;
+                }
+            }
+            }
+        },
+        scales: {
+            x: {
+            title: {
+                display: true,
+                text: "날짜"
+            }
+            },
+            y: {
+            title: {
+                display: true,
+                text: "리뷰 수"
+            },
+            beginAtZero: true,
+            precision: 0
+            }
+        }
+        }
+    });
+    
+}
+
+
+document.addEventListener("DOMContentLoaded", function(){
     uptBySelID("productSelect", "analyze");
+    
     get_sentiment();
 });

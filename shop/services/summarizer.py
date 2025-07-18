@@ -6,11 +6,13 @@ from chromadb.config import Settings
 from langchain.prompts import ChatPromptTemplate
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from dotenv import load_dotenv
+from django.conf import settings
 from shop.models import Product
 import re
 import os
 load_dotenv()
 
+api_key = settings.OPEN_AI_API_KEY
 
 def summarize_reviews(product_id: int, contents: list[str], chunk_size=1500, chunk_overlap=100) -> str:
     product = Product.objects.get(id=product_id)
@@ -23,6 +25,7 @@ def summarize_reviews(product_id: int, contents: list[str], chunk_size=1500, chu
 
     # 2. LangChain 준비
     api_key = os.getenv("OPEN_AI_API_KEY")
+   
     llm = ChatOpenAI(model="gpt-4.1-nano", temperature=0, openai_api_key=api_key)
 
     # 3. 전체 텍스트 결합 및 chunk 나누기

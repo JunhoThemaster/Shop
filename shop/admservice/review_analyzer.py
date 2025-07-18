@@ -66,27 +66,21 @@ def analyze_reviews_for_product(product_id: int):
 from django.db.models import Count
 from django.db.models.functions import TruncDate
 
-def review_trend(product_id):
+def analyze_review_trend(product_id):
     
         queryset = (
-        Review.objects
-        .annotate(date=TruncDate("created_at"))  # 날짜만 추출
-        .values("product_id", "date")            # product_id + 날짜 기준 그룹화
-        .annotate(count=Count("id"))             # 해당 조합의 리뷰 수
-        .order_by("product_id", "date")
+            Review.objects
+            .filter(product_id=product_id)                
+            .annotate(date=TruncDate("created_at"))       
+            .values("date")
+            .annotate(count=Count("id"))
+            .order_by("date")
         )
         result = {}
         
         for row in queryset:
-            pid = row["product_id"]
             date = row["date"].strftime("%Y-%m-%d")
-            count = row["count"]
+            result[date] = row["count"]
 
-            if pid not in result:
-                result[pid] = []
-            result[pid].append({
-                "date": date,
-                "count": count
-            })
-            
-        return result
+        return result  # dict of {"YYYY-MM-DD": count}
+

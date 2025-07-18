@@ -54,3 +54,13 @@ def get_sentiment_ratio(request, product_id):
         return JsonResponse({
             "msg" : "분석 결과 저장본 없음"
         })
+        
+        
+def get_review_trend(request,product_id):
+
+    trend_data = review_analyzer.analyze_review_trend(product_id=product_id)
+    
+    if trend_data:
+        return JsonResponse({"trend" : trend_data})    
+    else:
+        return JsonResponse({"msg" : "조회할 리뷰가 없습니다"})

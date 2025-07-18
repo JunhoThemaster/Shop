@@ -72,6 +72,7 @@ WSGI_APPLICATION = 'shopbot.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+OPEN_AI_API_KEY = os.getenv("OPEN_AI_API_KEY")
 
 DATABASES = {
    'default': {

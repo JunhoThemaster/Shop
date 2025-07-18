@@ -9,25 +9,25 @@ import csv
 from datetime import datetime
 from shop.models import Product, Review
 import re, emoji
-from konlpy.tag import Okt
+# from konlpy.tag import Okt
 from django.db import transaction
 from django.conf import settings
 
-STOPWORDS = {"이", "그", "저", "것", "수", "좀"}
-okt = Okt()
+# STOPWORDS = {"이", "그", "저", "것", "수", "좀"}
+# okt = Okt()
 
 
-def preprocess(text: str) -> list[str]:
-    # ① 기본 정규화
-    text = emoji.replace_emoji(text, "")
-    text = re.sub(r'https?://\S+', ' ', text)              # URL 제거
-    text = re.sub(r'[^가-힣a-zA-Z0-9\s]', ' ', text)       # 특수문자
-    text = text.strip()
+# def preprocess(text: str) -> list[str]:
+#     # ① 기본 정규화
+#     text = emoji.replace_emoji(text, "")
+#     text = re.sub(r'https?://\S+', ' ', text)              # URL 제거
+#     text = re.sub(r'[^가-힣a-zA-Z0-9\s]', ' ', text)       # 특수문자
+#     text = text.strip()
 
-    # ② Okt 형태소
-    tokens = okt.morphs(text)
-    tokens = [t for t in tokens if len(t) > 1 and t not in STOPWORDS]
-    return tokens
+#     # ② Okt 형태소
+#     tokens = okt.morphs(text)
+#     tokens = [t for t in tokens if len(t) > 1 and t not in STOPWORDS]
+#     return tokens
 
 
 def update_product_tokens(product_id: int):
@@ -97,7 +97,6 @@ for info_path, review_path in zip(data_li, review_li):
             )
             if created: # 프로덕트 저장 , 이후 리뷰 까지 저장후 update review token 호출 하면 token화된 결과까지 다 저장
                 
-                update_product_tokens(product_id= product.id)
                 print(f"✅ 리뷰 저장됨: {review.content[:30]}...")
             else:
                 print(f"⚠️ 이미 존재하는 리뷰: {review.content[:30]}...")

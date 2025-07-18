@@ -20,7 +20,7 @@ class Review(models.Model):
     recommend = models.BooleanField()
     content = models.TextField()
     tokens = models.TextField(null=False,blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=False)
     def __str__(self):
         return f"{'추천' if self.recommend else '비추천'} - {self.created_at.strftime('%Y-%m-%d')}"
     

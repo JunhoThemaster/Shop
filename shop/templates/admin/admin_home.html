@@ -10,7 +10,7 @@
     <p>분석 중입니다...</p>
   </div>
   <div class="row">
-    <h1>분석할 게임</h1>
+    <h1>분석할 게임(실시간임)</h1>
   </div>
   <div class="row">
      <select id="productSelect" class="form-select" style="width: 300px; height: 40px; overflow-y: auto;">
@@ -26,7 +26,7 @@
     <div class="col-xl-8-col-lg-7">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">파이 Chart</h6>
+          <h6 class="m-0 font-weight-bold text-primary">게임별 리뷰 감정 집계</h6>
         </div>
         <div class="card-body">
             <div class="chart-pie pt-4">
@@ -37,7 +37,21 @@
             <code>/js/demo/chart-pie-demo.js</code> file.
         </div>
       </div>
-
+    </div>
+    <div class="col-xl-8-col-lg-7">
+        <div class="card shadow mb-4">
+          <div class="card-header py-3 d-flex flex-row align items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">일별 리뷰수</h6>
+          </div>                   <!-- Card Body -->
+          <div class="card-body">
+              <div class="chart-pie pt-4">
+                  <canvas id="reviewTrendChart"></canvas>
+              </div>
+              <hr>
+              Styling for the donut chart can be found in the
+              <code>/js/demo/chart-pie-demo.js</code> file.
+          </div>
+        </div>
     </div>
   </div>
 {% endblock %}

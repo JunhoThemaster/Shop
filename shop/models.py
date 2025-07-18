@@ -27,8 +27,20 @@ class Review(models.Model):
     
     
 class ReviewAnalysis(models.Model):
-    review = models.OneToOneField(Product, on_delete=models.CASCADE, related_name='analysis')
-    is_negative = models.BooleanField()
-    keywords = models.TextField()
-    summary = models.TextField(null=True, blank=True)
-    analyzed_at = models.DateTimeField(auto_now_add=True)
+    product = models.OneToOneField(Product, on_delete=models.CASCADE)
+    total_reviews = models.PositiveIntegerField(default=0)
+    positive_count = models.PositiveIntegerField(default=0)
+    neutral_count = models.PositiveIntegerField(default=0)
+    negative_count = models.PositiveIntegerField(default=0)
+    average_length = models.FloatField(default=0.0)
+    cluster_json = models.JSONField(null=True, blank=True)
+    wordcloud_image = models.ImageField(upload_to='wordclouds/', null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def sentiment_ratio(self):
+        total = self.total_reviews or 1
+        return {
+            "긍정": round(self.positive_count / total * 100, 1),
+            "애매": round(self.neutral_count / total * 100, 1),
+            "부정": round(self.negative_count / total * 100, 1)
+        }

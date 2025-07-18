@@ -3,7 +3,41 @@
 
 {% block content %}
   <!-- 여기부터 원본 index.html 의 카드·차트 엘리먼트 복사 -->
+  <div id="loadingSpinner" style="display: none; text-align: center; margin-top: 20px;">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden"></span>
+    </div>
+    <p>분석 중입니다...</p>
+  </div>
   <div class="row">
-    …
+    <h1>분석할 게임</h1>
+  </div>
+  <div class="row">
+     <select id="productSelect" class="form-select" style="width: 300px; height: 40px; overflow-y: auto;">
+      {% for product in products %}
+        <option value="{{ product.id }}">{{ product.name }}</option>
+      {% endfor %}
+     </select>
+     <span></span>
+      <button id="analyze" class="btn btn-primary btn-circle btn-lg" data-product-id="{{ products.0.id }}">분석</button>
+  </div>
+   
+  <div class="row">
+    <div class="col-xl-8-col-lg-7">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">파이 Chart</h6>
+        </div>
+        <div class="card-body">
+            <div class="chart-pie pt-4">
+                <canvas id="myPieChart"></canvas>
+            </div>
+            <hr>
+            Styling for the donut chart can be found in the
+            <code>/js/demo/chart-pie-demo.js</code> file.
+        </div>
+      </div>
+
+    </div>
   </div>
 {% endblock %}
